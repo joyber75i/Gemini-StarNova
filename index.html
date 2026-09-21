@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini StarNova - Joyber Edition</title>
+    <title>Gemini StarNova - Joyber Edition (v2.5 Pro)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -38,6 +38,16 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: #a8c7fa;
+        }
+
+        .model-badge {
+            font-size: 0.75rem;
+            background-color: #2b303b;
+            color: #c4edd6;
+            padding: 3px 8px;
+            border-radius: 12px;
+            border: 1px solid #38bdf8;
+            font-weight: bold;
         }
 
         .user-title {
@@ -79,7 +89,7 @@
             color: white;
         }
 
-        /* CONTENEDOR PRINCIPAL DIBUJADO EN PAINT */
+        /* LAYOUT PRINCIPAL */
         .main-layout {
             display: flex;
             flex: 1;
@@ -88,7 +98,7 @@
             gap: 16px;
         }
 
-        /* AREA CENTRAL DE PANTALLA DE LA PC VIRTUAL */
+        /* AREA CENTRAL DE PANTALLA */
         .pc-screen {
             flex: 3;
             background-color: #1e1f20;
@@ -111,7 +121,6 @@
             opacity: 0.7;
         }
 
-        /* Posiciones de las estrellas como en tu dibujo */
         .star-top-left { top: 15px; left: 20px; }
         .star-top-right { top: 15px; right: 20px; }
         .star-bottom-left { bottom: 15px; left: 20px; }
@@ -188,7 +197,14 @@
             border-left: 3px solid #a8c7fa;
         }
 
-        /* CAMPO DE ENTRADA ESTILO GEMINI */
+        .error-msg {
+            background-color: #3c1e1e;
+            color: #f87171;
+            align-self: flex-start;
+            border-left: 3px solid #ef4444;
+        }
+
+        /* CAMPO DE ENTRADA */
         .chat-input-box {
             display: flex;
             background: #131314;
@@ -228,6 +244,7 @@
     <header>
         <div class="logo-area">
             ✨ <span>StarNova</span>
+            <span class="model-badge">Gemini 2.5 Pro</span>
         </div>
         
         <div class="user-title">Joyber</div>
@@ -239,7 +256,6 @@
     </header>
 
     <div class="main-layout">
-        <!-- PANTALLA PRINCIPAL CON ESTRELLAS DEL DIBUJO -->
         <div class="pc-screen">
             <div class="star-icon star-top-left">✦</div>
             <div class="star-icon star-top-right">✦</div>
@@ -247,18 +263,17 @@
             <div class="star-icon star-bottom-right">✦</div>
 
             <div class="status-display" id="screenStatus">PC Virtual Apagada 🔴</div>
-            <div class="status-sub" id="screenSub">Presiona el botón ON arriba para encender tu PC virtual e iniciar los procesos de StarNova.</div>
+            <div class="status-sub" id="screenSub">Presiona el botón ON arriba para encender tu PC virtual e iniciar los procesos de StarNova v2.5 Pro.</div>
         </div>
 
-        <!-- COLUMNA DE CHAT DERECHA -->
         <div class="chat-sidebar">
             <div class="chat-header">
-                <span>✦ Chat</span>
+                <span>✦ Chat (2.5 Pro)</span>
             </div>
 
             <div class="chat-messages" id="chatLogs">
                 <div class="msg ai-msg">
-                    ¡Hola Joyber! Estoy listo. Puedes encender o apagar la PC virtual arriba con los botones, o escribirte conmigo aquí mismo.
+                    ¡Hola Joyber! Sistema StarNova listo y configurado en la versión Gemini 2.5 Pro. ¿Qué procesamos hoy?
                 </div>
             </div>
 
@@ -284,14 +299,14 @@
                 btnON.classList.add('on-active');
                 btnOFF.classList.remove('off-active');
                 status.innerText = "PC Virtual Encendida 🟢";
-                sub.innerText = "Sistema StarNova v3.6 ejecutándose a Máxima Potencia. Listo para recibir procesos.";
-                addMessage('ai', '🖥️ **StarNova Reporte:** La PC virtual se ha encendido correctamente. No hay tareas pesadas interrumpiéndose ahora.');
+                sub.innerText = "Sistema StarNova ejecutándose en Gemini 2.5 Pro a Máxima Potencia.";
+                addMessage('ai', '🖥️ **StarNova Reporte:** PC Virtual activa ejecutando motor Gemini 2.5 Pro.');
             } else {
                 btnOFF.classList.add('off-active');
                 btnON.classList.remove('on-active');
                 status.innerText = "PC Virtual Apagada 🔴";
-                sub.innerText = "Presiona el botón ON arriba para encender tu PC virtual e iniciar los procesos de StarNova.";
-                addMessage('ai', '🛑 **StarNova Reporte:** Apagando entorno virtual. Si estaba procesando algo importante, guardé el estado actual.');
+                sub.innerText = "Presiona el botón ON arriba para encender tu PC virtual.";
+                addMessage('ai', '🛑 **StarNova Reporte:** PC Virtual en estado de reposo.');
             }
         }
 
@@ -313,23 +328,29 @@
             input.value = '';
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                // Endpoint oficial configurado en gemini-2.5-pro
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text }] }]
+                        contents: [{
+                            parts: [{ text: text }]
+                        }]
                     })
                 });
 
                 const data = await response.json();
-                if (data.candidates && data.candidates[0].content) {
+                
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
                     const reply = data.candidates[0].content.parts[0].text;
                     addMessage('ai', reply);
+                } else if (data.error) {
+                    addMessage('error', `Error de API (${data.error.code}): ${data.error.message}`);
                 } else {
-                    addMessage('ai', 'Recibido.');
+                    addMessage('error', 'Respuesta desconocida de la API.');
                 }
             } catch (e) {
-                addMessage('ai', 'Error de conexión con la red de StarNova.');
+                addMessage('error', `Error de red: ${e.message}`);
             }
         }
 
